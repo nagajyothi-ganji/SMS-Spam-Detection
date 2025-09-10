@@ -26,3 +26,35 @@ and bar charts are also employed to represent predictions graphically.
 This system demonstrates how machine learning can be applied to build real-world applications
 that automatically filter spam, saving users from fraudulent and unnecessary messages. 
 The project can also be extended using TF-IDF, deep learning models, or transformer-based NLP techniques to achieve even higher accuracy.
+
+Technologies Used
+
+Programming Language
+
+Python → Main language for building and testing the model.
+
+Libraries & Frameworks
+
+Pandas → Data loading, cleaning, and manipulation.
+
+Scikit-learn → Machine learning algorithms (Naïve Bayes, train/test split, evaluation metrics).
+
+CountVectorizer (Bag of Words) → Converts text into numerical features.
+
+Matplotlib & Seaborn → Data visualization (graphs, confusion matrix).
+
+Joblib → Saving and loading trained models for reuse.
+
+Machine Learning Algorithm
+
+Multinomial Naïve Bayes → Suitable for text classification with word frequency features.
+
+Dataset
+
+SMS Spam Collection Dataset (UCI ML Repository) → Contains 5,574 SMS labeled as ham or spam.
+
+Tools/Environment
+
+Jupyter Notebook / Google Colab / VS Code → Development and testing environment.
+
+GitHub (optional) → For project version control and sharing.
