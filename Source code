@@ -1,0 +1,77 @@
+pip install pandas scikit-learn joblib
+import pandas as pd                    # data loading/manipulation
+from sklearn.model_selection import train_test_split
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+import joblib                           # to save/load model & vectorizer
+
+file_path = "spam.csv"                 # change if your file is elsewhere
+df = pd.read_csv(file_path, encoding='latin-1')  # dataset encoding often latin-1
+print(df.shape)
+print(df.columns)
+print(df.head())
+# Keep only the columns we need (handles common extra columns in some spam.csv files)
+df = df[['v1', 'v2']].copy()
+df.columns = ['label', 'message']     # rename for clarity
+
+# Drop missing values and duplicates (good practice)
+df.dropna(inplace=True)
+df.drop_duplicates(subset='message', inplace=True)
+
+print(df.label.value_counts())        # see how many ham vs spam
+print(df.head())
+
+df['label_num'] = df['label'].map({'ham': 0, 'spam': 1})
+X = df['message']                     # features (text)
+y = df['label_num']                   # numeric target
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.20, random_state=42, stratify=y
+)
+
+cv = CountVectorizer()                # you can add stop_words='english' if you like
+X_train_cv = cv.fit_transform(X_train)  # learn vocab from train and transform train
+X_test_cv = cv.transform(X_test)        # transform test using same vocab
+
+model = MultinomialNB()
+model.fit(X_train_cv, y_train)        # train model on the vectorized training data
+
+y_pred = model.predict(X_test_cv)
+
+print("Accuracy:", accuracy_score(y_test, y_pred))
+print("Confusion Matrix:\n", confusion_matrix(y_test, y_pred))
+print("Classification Report:\n", classification_report(y_test, y_pred))
+
+def predict_spam(message_text):
+    vec = cv.transform([message_text])   # vectorize the single message
+    pred = model.predict(vec)[0]         # 0 or 1
+    return "Spam" if pred == 1 else "Not Spam"
+
+# Examples
+print(predict_spam("Win a brand new iPhone! Click here to claim"))
+print(predict_spam("Hi, are we still meeting at 5pm?"))
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Confusion Matrix Heatmap
+cm = confusion_matrix(y_test, y_pred)
+plt.figure(figsize=(6,4))
+sns.heatmap(cm, annot=True, fmt="d", cmap="Blues",
+            xticklabels=["Ham", "Spam"], yticklabels=["Ham", "Spam"])
+plt.xlabel("Predicted")
+plt.ylabel("Actual")
+plt.title("Confusion Matrix - Spam Classifier")
+plt.show()
+
+
+
+# Bar chart of prediction counts
+plt.figure(figsize=(6,4))
+pd.Series(y_pred).value_counts().sort_index().plot(kind="bar", color=["skyblue","salmon"])
+plt.xticks([0,1], ["Ham","Spam"], rotation=0)
+plt.title("Predicted Message Distribution")
+plt.xlabel("Class")
+plt.ylabel("Count")
+plt.show()
